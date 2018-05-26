@@ -103,7 +103,7 @@ def mine():
         BLOCKCHAIN[userId] = [dummyBlock]
 
     # get proof of work for block being mined
-    lastBlock = BLOCKCHAIN[userId][len(BLOCKCHAIN) - 1]
+    lastBlock = BLOCKCHAIN[userId][len(BLOCKCHAIN[userId]) - 1]
     lastProof = lastBlock.data['proof-of-work']
     proof = proofOfWork(lastProof)
 
