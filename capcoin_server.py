@@ -148,5 +148,3 @@ def addBalance():
     output += '\tAMOUNT: {}\n'.format(newBalance['amount'])
     output += '\tUSER: {}\n'.format(newBalance['user'])
     return getResponse(output)
-
-app.run()
