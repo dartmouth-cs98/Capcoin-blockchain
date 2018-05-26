@@ -45,6 +45,19 @@ def apiRoot():
         'method': 'POST',
         'params': ['userId', 'amount'],
         'description': 'add a balance' } ] }
+
+    # increase count for testing
+    f = open('counter.txt')
+    text = f.read()
+    f.close()
+
+    # write
+    f = open('counter.txt', 'w')
+    n = int(text.strip())
+    n += 1
+    print(n)
+    f.write(str(n))
+    f.close()
     return json.dumps(obj)
 
 @app.route('/blockchain', methods=['GET'])
@@ -94,7 +107,7 @@ def mine():
     lastProof = lastBlock.data['proof-of-work']
     proof = proofOfWork(lastProof)
 
-    # TODO: reward miner
+    # TODO: reward miner?
 
     # instantiate new block
     newBlockData = {
@@ -148,3 +161,5 @@ def addBalance():
     output += '\tAMOUNT: {}\n'.format(newBalance['amount'])
     output += '\tUSER: {}\n'.format(newBalance['user'])
     return getResponse(output)
+
+app.run()
