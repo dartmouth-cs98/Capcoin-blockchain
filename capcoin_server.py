@@ -56,13 +56,7 @@ def getBlocks():
     f.close()
 
     # parse json
-    res = {}
-    for key in blockchain:
-        chainToSend = blockchain[key][:]
-        for i in range(len(chainToSend)):
-            chainToSend[i] = chainToSend[i].getAsDict()
-        res[key] = chainToSend
-    return getResponse(res)
+    return getResponse(blockchain)
 
 @app.route('/balances', methods=['GET'])
 def getBalances():
@@ -73,10 +67,7 @@ def getBalances():
     f.close()
 
     # parse json
-    res = {}
-    for key in balances:
-        res[key] = balances[key][:]
-    return getResponse(res)
+    return getResponse(balances)
 
 @app.route('/mine', methods = ['POST'])
 def mine():
@@ -89,31 +80,31 @@ def mine():
         return getResponse('Invalid mine request: missing "user" param', success=False)
     userId = reqBody['user']
 
-    # ensure balances are available to mine
-    if userId not in BALANCES or not BALANCES[userId]:
-        return getResponse('no balances to mine', success=False)
-
     # load balances from file
-    f = read(BLOCKCHAIN_FILE)
+    f = open(BLOCKCHAIN_FILE)
     blockchain = json.loads(f.read())
     f.close()
 
     # load balances from file
-    f = read(BALANCES_FILE)
+    f = open(BALANCES_FILE)
     balances = json.loads(f.read())
     f.close()
+
+    # ensure balances are available to mine
+    if userId not in balances or not balances[userId]:
+        return getResponse('no balances to mine', success=False)
 
     # add dummy block if blockchain is empty
     if userId not in blockchain:
         blockData = {
             'proof-of-work': 9,
             'balances': None }
-        dummyBlock = CapcoinBlock(0, date.datetime.now(), blockData, '0')
+        dummyBlock = CapcoinBlock(0, date.datetime.now(), blockData, '0').getAsDict()
         blockchain[userId] = [dummyBlock]
 
     # get proof of work for block being mined
     lastBlock = blockchain[userId][len(blockchain[userId]) - 1]
-    lastProof = lastBlock.data['proof-of-work']
+    lastProof = lastBlock['data']['proof-of-work']
     proof = proofOfWork(lastProof)
 
     # TODO: reward miner?
@@ -122,9 +113,9 @@ def mine():
     newBlockData = {
         'proof-of-work': proof,
         'balances': list(balances[userId]) }
-    newBlockIndex = lastBlock.index + 1
+    newBlockIndex = lastBlock['index'] + 1
     newBlockTimestamp = thisTimestamp = date.datetime.now()
-    lastBlockHash = lastBlock.hash
+    lastBlockHash = lastBlock['hash']
 
     # create new block
     balances[userId][:] = []
@@ -132,16 +123,16 @@ def mine():
         newBlockIndex,
         newBlockTimestamp,
         newBlockData,
-        lastBlockHash )
+        lastBlockHash).getAsDict()
     blockchain[userId].append(minedBlock)
 
     # write blockchain back to file
-    f = open(BLOCKCHAIN_FILE)
+    f = open(BLOCKCHAIN_FILE, 'w')
     f.write(json.dumps(blockchain))
     f.close()
 
     # write balances back to file
-    f = open(BALANCES_FILE)
+    f = open(BALANCES_FILE, 'w')
     f.write(json.dumps(balances))
     f.close()
 
@@ -181,7 +172,7 @@ def addBalance():
     balances[userId] = [newBalance]
 
     # write list back to file
-    f = open(BALANCES_FILE)
+    f = open(BALANCES_FILE, 'w')
     f.write(json.dumps(balances))
     f.close()
 
@@ -190,3 +181,5 @@ def addBalance():
     output += '\tAMOUNT: {}\n'.format(newBalance['amount'])
     output += '\tUSER: {}\n'.format(newBalance['user'])
     return getResponse(output)
+
+app.run()

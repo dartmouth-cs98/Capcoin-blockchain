@@ -24,8 +24,8 @@ class CapcoinBlock:
         sha.update(data)
         return sha.hexdigest()
     def getAsDict(self):
-        blockDict = { 'index': str(self.index),
+        blockDict = { 'index': self.index,
             'timestamp': str(self.timestamp),
-            'data': str(self.data),
+            'data': self.data,
             'hash': self.hash }
         return blockDict
