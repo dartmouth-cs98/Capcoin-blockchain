@@ -1,1 +1,1 @@
-web: gunicorn capcoin-server:app
+web: gunicorn capcoin_server:app

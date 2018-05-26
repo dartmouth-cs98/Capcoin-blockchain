@@ -25,9 +25,9 @@ BLOCKCHAIN = {}
 BALANCES = {}
 
 # instantiate node
-NODE = Flask('Capcoin')
+app = Flask('Capcoin')
 
-@NODE.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def apiRoot():
     """api root"""
     obj = { 'endpoints': [
@@ -47,7 +47,7 @@ def apiRoot():
         'description': 'add a balance' } ] }
     return json.dumps(obj)
 
-@NODE.route('/blockchain', methods=['GET'])
+@app.route('/blockchain', methods=['GET'])
 def getBlocks():
     """display node's blocks"""
     res = {}
@@ -58,7 +58,7 @@ def getBlocks():
         res[key] = chainToSend
     return getResponse(res)
 
-@NODE.route('/balances', methods=['GET'])
+@app.route('/balances', methods=['GET'])
 def getBalances():
     """display node's balances in queue"""
     res = {}
@@ -66,7 +66,7 @@ def getBalances():
         res[key] = BALANCES[key][:]
     return getResponse(res)
 
-@NODE.route('/mine', methods = ['POST'])
+@app.route('/mine', methods = ['POST'])
 def mine():
     """mine Capcoin blocks"""
     # validate request body
@@ -120,7 +120,7 @@ def mine():
         'data': newBlockData,
         'hash': lastBlockHash })
 
-@NODE.route('/add', methods=['POST'])
+@app.route('/add', methods=['POST'])
 def addBalance():
     """submit a balance"""
     # validate request body
@@ -149,4 +149,4 @@ def addBalance():
     output += '\tUSER: {}\n'.format(newBalance['user'])
     return getResponse(output)
 
-NODE.run()
+app.run()
