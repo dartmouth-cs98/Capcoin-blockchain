@@ -21,8 +21,8 @@ from flask import Flask
 from flask import request
 
 # this node's data stores
-BLOCKCHAIN = {}
-BALANCES = {}
+BLOCKCHAIN_FILE = 'Blockchain'
+BALANCES_FILE = 'Balances'
 
 # instantiate node
 app = Flask('Capcoin')
@@ -45,27 +45,20 @@ def apiRoot():
         'method': 'POST',
         'params': ['userId', 'amount'],
         'description': 'add a balance' } ] }
-
-    # increase count for testing
-    f = open('counter.txt')
-    text = f.read()
-    f.close()
-
-    # write
-    f = open('counter.txt', 'w')
-    n = int(text.strip())
-    n += 1
-    print(n)
-    f.write(str(n))
-    f.close()
     return json.dumps(obj)
 
 @app.route('/blockchain', methods=['GET'])
 def getBlocks():
     """display node's blocks"""
+    # open blockchain file
+    f = open(BLOCKCHAIN_FILE)
+    blockchain = json.loads(f.read())
+    f.close()
+
+    # parse json
     res = {}
-    for key in BLOCKCHAIN:
-        chainToSend = BLOCKCHAIN[key][:]
+    for key in blockchain:
+        chainToSend = blockchain[key][:]
         for i in range(len(chainToSend)):
             chainToSend[i] = chainToSend[i].getAsDict()
         res[key] = chainToSend
@@ -74,9 +67,15 @@ def getBlocks():
 @app.route('/balances', methods=['GET'])
 def getBalances():
     """display node's balances in queue"""
+    # open balances file
+    f = open(BALANCES_FILE)
+    balances = json.loads(f.read())
+    f.close()
+
+    # parse json
     res = {}
-    for key in BALANCES:
-        res[key] = BALANCES[key][:]
+    for key in balances:
+        res[key] = balances[key][:]
     return getResponse(res)
 
 @app.route('/mine', methods = ['POST'])
@@ -94,16 +93,26 @@ def mine():
     if userId not in BALANCES or not BALANCES[userId]:
         return getResponse('no balances to mine', success=False)
 
+    # load balances from file
+    f = read(BLOCKCHAIN_FILE)
+    blockchain = json.loads(f.read())
+    f.close()
+
+    # load balances from file
+    f = read(BALANCES_FILE)
+    balances = json.loads(f.read())
+    f.close()
+
     # add dummy block if blockchain is empty
-    if userId not in BLOCKCHAIN:
+    if userId not in blockchain:
         blockData = {
             'proof-of-work': 9,
             'balances': None }
         dummyBlock = CapcoinBlock(0, date.datetime.now(), blockData, '0')
-        BLOCKCHAIN[userId] = [dummyBlock]
+        blockchain[userId] = [dummyBlock]
 
     # get proof of work for block being mined
-    lastBlock = BLOCKCHAIN[userId][len(BLOCKCHAIN[userId]) - 1]
+    lastBlock = blockchain[userId][len(blockchain[userId]) - 1]
     lastProof = lastBlock.data['proof-of-work']
     proof = proofOfWork(lastProof)
 
@@ -112,19 +121,29 @@ def mine():
     # instantiate new block
     newBlockData = {
         'proof-of-work': proof,
-        'balances': list(BALANCES[userId]) }
+        'balances': list(balances[userId]) }
     newBlockIndex = lastBlock.index + 1
     newBlockTimestamp = thisTimestamp = date.datetime.now()
     lastBlockHash = lastBlock.hash
 
     # create new block
-    BALANCES[userId][:] = []
+    balances[userId][:] = []
     minedBlock = CapcoinBlock(
         newBlockIndex,
         newBlockTimestamp,
         newBlockData,
         lastBlockHash )
-    BLOCKCHAIN[userId].append(minedBlock)
+    blockchain[userId].append(minedBlock)
+
+    # write blockchain back to file
+    f = open(BLOCKCHAIN_FILE)
+    f.write(json.dumps(blockchain))
+    f.close()
+
+    # write balances back to file
+    f = open(BALANCES_FILE)
+    f.write(json.dumps(balances))
+    f.close()
 
     # return mined block to client as string
     return getResponse({
@@ -153,8 +172,18 @@ def addBalance():
         except ValueError:
             return getResponse('Invalid balance request: "amount" param is not number', success=False)
 
+    # load balances from file
+    f = open(BALANCES_FILE)
+    balances = json.loads(f.read())
+    f.close()
+
     # add balance to list
-    BALANCES[userId] = [newBalance]
+    balances[userId] = [newBalance]
+
+    # write list back to file
+    f = open(BALANCES_FILE)
+    f.write(json.dumps(balances))
+    f.close()
 
     # display balance to client
     output = 'Balance submission successful\n'
