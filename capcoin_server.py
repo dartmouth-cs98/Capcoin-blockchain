@@ -176,6 +176,6 @@ def addBalance():
 
     # display balance to client
     output = 'Balance submission successful\n'
-    output += '\tAMOUNT: {}\n'.format(newBalance['capcoin'])
-    output += '\tUSER: {}\n'.format(newBalance['user'])
+    output += '\tAMOUNT: {}\n'.format(reqBody['capcoin'])
+    output += '\tUSER: {}\n'.format(reqBody['user'])
     return getResponse(output)
