@@ -97,7 +97,7 @@ def mine():
     # add dummy block if blockchain is empty
     if userId not in blockchain:
         blockData = {
-            'proof-of-work': 9,
+            'proof-of-work': POW_CONST,
             'balances': None }
         dummyBlock = CapcoinBlock(0, date.datetime.now(), blockData, '0').getAsDict()
         blockchain[userId] = [dummyBlock]
@@ -106,8 +106,6 @@ def mine():
     lastBlock = blockchain[userId][len(blockchain[userId]) - 1]
     lastProof = lastBlock['data']['proof-of-work']
     proof = proofOfWork(lastProof)
-
-    # TODO: reward miner?
 
     # instantiate new block
     newBlockData = {

@@ -9,6 +9,8 @@ Based on:       https://medium.com/crypto-currently/lets-make-the-tiniest-blockc
 
 import json
 
+POW_CONST = 9
+
 def getOtherChains():
     """get blockchains of all other nodes"""
     otherChains = []
@@ -30,10 +32,10 @@ def consensus():
     BLOCKCHAIN = longestChain
 
 def proofOfWork(lastProof):
-    """get proof of work"""
-    # generate proof work through incrementing variable
+    """proof of work algorithm"""
+    # generate proof of work by incrementing variable
     incrementor = lastProof + 1
-    while not (incrementor % 9 == 0 and incrementor % lastProof == 0):
+    while not (incrementor % POW_CONST == 0 and incrementor % lastProof == 0):
         incrementor += 1
     return incrementor
 
