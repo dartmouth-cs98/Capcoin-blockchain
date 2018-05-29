@@ -116,6 +116,7 @@ def mine():
     lastBlockHash = lastBlock['hash']
 
     # create new block
+    print(balances)
     balances[userId][:] = []
     minedBlock = CapcoinBlock(
         newBlockIndex,
