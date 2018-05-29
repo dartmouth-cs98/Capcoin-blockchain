@@ -10,8 +10,10 @@ Based on:       https://medium.com/crypto-currently/lets-make-the-tiniest-blockc
 # local imports
 from packages.CapcoinBlock import CapcoinBlock
 from packages.Resources import *
+from packages.Database import *
 
 # system imports
+import sys
 import json
 import requests
 import datetime as date
@@ -20,9 +22,9 @@ import datetime as date
 from flask import Flask
 from flask import request
 
-# this node's data stores
-BLOCKCHAIN_FILE = 'Blockchain'
-BALANCES_FILE = 'Balances'
+# connect to db
+MLAB = MLabIO()
+MLAB.connect()
 
 # instantiate node
 app = Flask('Capcoin')
@@ -50,10 +52,8 @@ def apiRoot():
 @app.route('/blockchain', methods=['GET'])
 def getBlocks():
     """display node's blocks"""
-    # open blockchain file
-    f = open(BLOCKCHAIN_FILE)
-    blockchain = json.loads(f.read())
-    f.close()
+    # get blockchain from db
+    blockchain = MLAB.getBlockchain()
 
     # parse json
     return getResponse(blockchain)
@@ -61,10 +61,8 @@ def getBlocks():
 @app.route('/balances', methods=['GET'])
 def getBalances():
     """display node's balances in queue"""
-    # open balances file
-    f = open(BALANCES_FILE)
-    balances = json.loads(f.read())
-    f.close()
+    # get balances from db
+    balances = MLAB.getBalances()
 
     # parse json
     return getResponse(balances)
@@ -80,15 +78,9 @@ def mine():
         return getResponse('Invalid mine request: missing "user" param', success=False)
     userId = reqBody['user']
 
-    # load balances from file
-    f = open(BLOCKCHAIN_FILE)
-    blockchain = json.loads(f.read())
-    f.close()
-
-    # load balances from file
-    f = open(BALANCES_FILE)
-    balances = json.loads(f.read())
-    f.close()
+    # load objects from db
+    blockchain = MLAB.getBlockchain()
+    balances = MLAB.getBalances()
 
     # ensure balances are available to mine
     if userId not in balances or not balances[userId]:
@@ -124,15 +116,9 @@ def mine():
         lastBlockHash).getAsDict()
     blockchain[userId].append(minedBlock)
 
-    # write blockchain back to file
-    f = open(BLOCKCHAIN_FILE, 'w')
-    f.write(json.dumps(blockchain))
-    f.close()
-
-    # write balances back to file
-    f = open(BALANCES_FILE, 'w')
-    f.write(json.dumps(balances))
-    f.close()
+    # write data to db
+    MLAB.setBlockchain(json.dumps(blockchain))
+    MLAB.setBalances(json.dumps(balances))
 
     # return mined block to client as string
     return getResponse({
@@ -151,10 +137,8 @@ def addBalance():
     elif 'balances' not in reqBody:
         return getResponse('Invalid balance request: missing "balances" param', success=False)
 
-    # load balances from file
-    f = open(BALANCES_FILE)
-    balances = json.loads(f.read())
-    f.close()
+    # load balances from db
+    balances = MLAB.getBalances()
 
     # verify all capcoin in balanes are numbers
     entries = reqBody['balances']
@@ -169,10 +153,8 @@ def addBalance():
         except ValueError:
             return getResponse('Invalid balance entry: "capcoin" param is not number', success=False)
 
-    # write list back to file
-    f = open(BALANCES_FILE, 'w')
-    f.write(json.dumps(balances))
-    f.close()
+    # write list back to db
+    MLAB.setBalances(json.dumps(balances))
 
     # display balances back to client
     output = { 'balances': reqBody['balances'] }
