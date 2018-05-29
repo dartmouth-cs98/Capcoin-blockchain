@@ -43,7 +43,7 @@ def apiRoot():
         'description': 'mine balances' },
         { 'url': '/add',
         'method': 'POST',
-        'params': ['userId', 'amount'],
+        'params': ['userId', 'capcoin'],
         'description': 'add a balance' } ] }
     return json.dumps(obj)
 
@@ -145,29 +145,29 @@ def mine():
 def addBalance():
     """submit a balance"""
     # validate request body
-    newBalance = request.get_json()
-    if not newBalance:
+    reqBody = request.get_json()
+    if not reqBody:
         return getResponse('Invalid balance request: no params', success=False)
-    elif 'amount' not in newBalance:
-        return getResponse('Invalid balance request: missing "amount" param', success=False)
-    elif 'user' not in newBalance:
-        return getResponse('Invalid balance request: missing "user" param', success=False)
-    else:
-
-        # verify amount is number
-        userId = newBalance['user']
-        try:
-            float(newBalance['amount'])
-        except ValueError:
-            return getResponse('Invalid balance request: "amount" param is not number', success=False)
+    elif 'balances' not in reqBody:
+        return getResponse('Invalid balance request: missing "balances" param', success=False)
 
     # load balances from file
     f = open(BALANCES_FILE)
     balances = json.loads(f.read())
     f.close()
 
-    # add balance to list
-    balances[userId] = [newBalance]
+    # verify all capcoin in balanes are numbers
+    entries = reqBody['balances']
+    for entry in entries:
+        userId = entry['user']
+        try:
+            float(entry['capcoin'])
+
+            # add balance to list if valid
+            userId = entry['user']
+            balances[userId] = entry
+        except ValueError:
+            return getResponse('Invalid balance entry: "capcoin" param is not number', success=False)
 
     # write list back to file
     f = open(BALANCES_FILE, 'w')
@@ -176,6 +176,6 @@ def addBalance():
 
     # display balance to client
     output = 'Balance submission successful\n'
-    output += '\tAMOUNT: {}\n'.format(newBalance['amount'])
+    output += '\tAMOUNT: {}\n'.format(newBalance['capcoin'])
     output += '\tUSER: {}\n'.format(newBalance['user'])
     return getResponse(output)
