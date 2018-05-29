@@ -116,7 +116,6 @@ def mine():
     lastBlockHash = lastBlock['hash']
 
     # create new block
-    print(balances)
     balances[userId][:] = []
     minedBlock = CapcoinBlock(
         newBlockIndex,
@@ -166,7 +165,7 @@ def addBalance():
 
             # add balance to list if valid
             userId = entry['user']
-            balances[userId] = entry
+            balances[userId] = [entry]
         except ValueError:
             return getResponse('Invalid balance entry: "capcoin" param is not number', success=False)
 
