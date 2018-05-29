@@ -174,8 +174,6 @@ def addBalance():
     f.write(json.dumps(balances))
     f.close()
 
-    # display balance to client
-    output = 'Balance submission successful\n'
-    output += '\tAMOUNT: {}\n'.format(reqBody['capcoin'])
-    output += '\tUSER: {}\n'.format(reqBody['user'])
+    # display balances back to client
+    output = { 'balances': reqBody['balances'] }
     return getResponse(output)
