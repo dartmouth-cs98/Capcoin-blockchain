@@ -40,9 +40,7 @@ class MLabIO:
         self.db.balances.insert_one({'data': balances})
     def getBlockchain(self):
         res = self.db.blockchain.find()[0]['data']
-        print(type(res), res)
         return json.loads(res)
     def getBalances(self):
         res = self.db.balances.find()[0]['data']
-        print(type(res), res)
         return json.loads(res)
