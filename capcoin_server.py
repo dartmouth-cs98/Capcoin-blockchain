@@ -78,6 +78,8 @@ def mine():
         return getResponse('Invalid mine request: missing "user" param', success=False)
     userId = reqBody['user']
 
+    print('mining for user', userId)
+
     # load objects from db
     blockchain = MLAB.getBlockchain()
     balances = MLAB.getBalances()
