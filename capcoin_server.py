@@ -111,11 +111,12 @@ def mine():
 
     # create new block
     balances[userId][:] = []
-    minedBlock = CapcoinBlock(
+    newBlock = CapcoinBlock(
         newBlockIndex,
         newBlockTimestamp,
         newBlockData,
-        lastBlockHash).getAsDict()
+        lastBlockHash)
+    minedBlock = newBlock.getAsDict()
     blockchain[userId].append(minedBlock)
 
     # write data to db
@@ -127,7 +128,7 @@ def mine():
         'index': newBlockIndex,
         'timestamp': str(newBlockTimestamp),
         'data': newBlockData,
-        'hash': minedBlock.hash })
+        'hash': newBlock.hash })
 
 @app.route('/add', methods=['POST'])
 def addBalance():
