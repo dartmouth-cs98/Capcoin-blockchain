@@ -127,7 +127,7 @@ def mine():
         'index': newBlockIndex,
         'timestamp': str(newBlockTimestamp),
         'data': newBlockData,
-        'hash': lastBlockHash })
+        'hash': minedBlock.hash })
 
 @app.route('/add', methods=['POST'])
 def addBalance():
