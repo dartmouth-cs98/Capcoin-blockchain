@@ -9,7 +9,7 @@ Based on:       https://medium.com/crypto-currently/lets-make-the-tiniest-blockc
 
 import json
 
-POW_CONST = 123
+POW_CONST = 5
 
 def getOtherChains():
     """get blockchains of all other nodes"""
