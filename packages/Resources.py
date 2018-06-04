@@ -11,26 +11,6 @@ import json
 
 POW_CONST = 5
 
-def getOtherChains():
-    """get blockchains of all other nodes"""
-    otherChains = []
-    for nodeUrl in PEER_NODES:
-        block = requests.get(nodeUrl + '/blocks').content
-        block = json.loads(block)
-        otherChains.append(block)
-    return otherChains
-
-def consensus():
-    """get consensus between nodes"""
-    otherChains = getOtherChains()
-    longestChain = BLOCKCHAIN
-    for chain in otherChains:
-        if len(longestChain) < len(chain):
-            longestChain = chain
-
-    # set chain to longest chain
-    BLOCKCHAIN = longestChain
-
 def proofOfWork(lastProof):
     """proof of work algorithm"""
     # generate proof of work by incrementing variable
