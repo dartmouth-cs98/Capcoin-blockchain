@@ -10,7 +10,7 @@ coinbase==2.0.6
 constantly==15.1.0
 cryptography==2.2.2
 dateparser==0.7.0
-Django==1.11.7
+Django==1.11.28
 Flask==1.0.2
 gunicorn==19.8.1
 hyperlink==18.0.0
