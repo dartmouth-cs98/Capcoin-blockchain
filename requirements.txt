@@ -8,7 +8,7 @@ chardet==3.0.4
 click==6.7
 coinbase==2.0.6
 constantly==15.1.0
-cryptography==2.2.2
+cryptography==3.2
 dateparser==0.7.0
 Django==1.11.7
 Flask==1.0.2
